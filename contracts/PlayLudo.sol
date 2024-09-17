@@ -12,7 +12,7 @@ contract PlayLudo {
     uint public maxPlayers = 4;
     address[] public playerAddresses;
 
-    // Function to join the game
+  
     function joinGame() public {
         require(playerAddresses.length < maxPlayers, "Max players reached");
         require(
@@ -24,14 +24,14 @@ contract PlayLudo {
         playerAddresses.push(msg.sender);
     }
 
-    // Function to roll dice
+    
     function diceRoll() public returns (uint) {
         require(players[msg.sender].position > 0, "You are not in the game!");
         require(!players[msg.sender].wonGame, "You already won!");
 
         uint rollDice = (random() % 6) + 1;
 
-        // Move the player forward based on dice roll
+       
         players[msg.sender].position += rollDice;
 
         if (players[msg.sender].position >= boardSize) {
@@ -42,7 +42,7 @@ contract PlayLudo {
         return rollDice;
     }
 
-    // Generate a pseudo-random number using prevrandao 
+   
     function random() internal view returns (uint) {
         return
             uint(
@@ -56,7 +56,7 @@ contract PlayLudo {
             );
     }
 
-    // Function to check if the game has a winner
+    
     function checkWinner() public view returns (address) {
         for (uint i = 0; i < playerAddresses.length; i++) {
             if (players[playerAddresses[i]].wonGame) {
