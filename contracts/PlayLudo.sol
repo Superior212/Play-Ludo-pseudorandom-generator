@@ -1,54 +1,65 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-contract LudoDice {
-    // Store player information
+contract PlayLudo {
     struct Player {
         uint position;
-        bool hasWon;
+        bool wonGame;
     }
 
     mapping(address => Player) public players;
     uint public boardSize = 56;
     uint public maxPlayers = 4;
-    uint public currentPlayerIndex;
     address[] public playerAddresses;
 
     // Function to join the game
     function joinGame() public {
         require(playerAddresses.length < maxPlayers, "Max players reached");
-        require(players[msg.sender].position == 0, "Already in the game");
+        require(
+            players[msg.sender].position == 0,
+            "You are already in the game"
+        );
 
         players[msg.sender] = Player(1, false);
         playerAddresses.push(msg.sender);
     }
 
-    // Function to roll dice (pseudo-random generator)
-    function rollDice() public returns (uint) {
+    // Function to roll dice
+    function diceRoll() public returns (uint) {
         require(players[msg.sender].position > 0, "You are not in the game!");
-        require(!players[msg.sender].hasWon, "You already won!");
+        require(!players[msg.sender].wonGame, "You already won!");
 
-        uint diceRoll = (random() % 6) + 1;
+        uint rollDice = (random() % 6) + 1;
 
         // Move the player forward based on dice roll
-        players[msg.sender].position += diceRoll;
+        players[msg.sender].position += rollDice;
 
-        // Check if player has reached the end of the board
         if (players[msg.sender].position >= boardSize) {
-            players[msg.sender].hasWon = true;
+            players[msg.sender].wonGame = true;
             players[msg.sender].position = boardSize;
         }
 
-        return diceRoll;
+        return rollDice;
     }
 
-    // Generate a pseudo-random number based on block data
-    function random() internal view returns (uint) {}
+    // Generate a pseudo-random number using prevrandao instead of difficulty
+    function random() internal view returns (uint) {
+        return
+            uint(
+                keccak256(
+                    abi.encodePacked(
+                        block.timestamp,
+                        msg.sender,
+                        block.prevrandao
+                    )
+                )
+            );
+    }
 
     // Function to check if the game has a winner
     function checkWinner() public view returns (address) {
         for (uint i = 0; i < playerAddresses.length; i++) {
-            if (players[playerAddresses[i]].hasWon) {
+            if (players[playerAddresses[i]].wonGame) {
                 return playerAddresses[i];
             }
         }
