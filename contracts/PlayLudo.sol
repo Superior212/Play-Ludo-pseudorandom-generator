@@ -42,7 +42,7 @@ contract PlayLudo {
         return rollDice;
     }
 
-    // Generate a pseudo-random number using prevrandao instead of difficulty
+    // Generate a pseudo-random number using prevrandao 
     function random() internal view returns (uint) {
         return
             uint(
